@@ -1,7 +1,8 @@
-import React, {useState} from 'react';
+import React, {useState, useEffect} from 'react';
 import PageDefault from '../../../components/PageDefault';
 import { Link } from 'react-router-dom';
 import FormField from '../../../components/FormFields';
+import Button from '../../../components/Button';
 
 
 function CadastroCategoria() {
@@ -30,9 +31,25 @@ function CadastroCategoria() {
     );
   }  
 
+
+  useEffect(() => {
+    if (window.location.href.includes('localhost')) {
+      const URL = 'http://localhost:8080/categorias';
+      fetch(URL)
+        .then(async (respostaDoServer) => {
+          if (respostaDoServer.ok) {
+            const resposta = await respostaDoServer.json();
+            setCategorias(resposta);
+            return;
+          }
+          throw new Error('Não foi possível pegar os dados');
+        });
+    }
+  }, []);
+
     return (
       <PageDefault>
-       <h1>Cadastro de Categoria: </h1>
+       <h1>Cadastro de Categoria:  </h1>
        <form onSubmit={function handleSubmit(infosDoEvento){
          infosDoEvento.preventDefault();
          setCategorias([
@@ -67,23 +84,30 @@ function CadastroCategoria() {
           onChange={handleChange}/>
         
          <p></p>
-         <button>
+         <Button>
            Cadastrar
-         </button>
+         </Button>
         <p></p>
          <Link to="/"> Voltar</Link>
        </form>
 
-       <u>
-         {categorias.map((categoria, indice) => {
+       {categorias.length === 0 && (
+         <div>
+           {}
+           Loading...
+         </div>
+       )}
+
+       <ul>
+         {categorias.map((categoria) => {
            return (
-             <li key={`${categoria}${indice}`}>
+             <li key={`${categoria.nome}`}>
                {categoria.nome}
              </li>
 
            )
          })}
-       </u>
+       </ul>
 
         
       </PageDefault>
