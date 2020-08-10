@@ -1,119 +1,119 @@
-import React, {useState, useEffect} from 'react';
-import PageDefault from '../../../components/PageDefault';
+import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
+import PageDefault from '../../../components/PageDefault';
 import FormField from '../../../components/FormFields';
 import Button from '../../../components/Button';
-
+import useForm from '../../../hooks/useForm';
 
 function CadastroCategoria() {
-
-  const [categorias, setCategorias] = useState([]);
-
   const valoresIniciais = {
     nome: '',
     descricao: '',
     cor: '',
-  }
+  };
 
-  const [values, setValues] = useState(valoresIniciais);
+  const { handleChange, values, clearForm } = useForm(valoresIniciais);
 
-  function setValue(chave, valor) {
-    setValues({
-      ...values,
-      [chave]: valor,
-    })
-  }
-
-  function handleChange(infosDoEvento) {
-    setValue(
-      infosDoEvento.target.getAttribute('name'),
-      infosDoEvento.target.value,
-    );
-  }  
-
+  const [categorias, setCategorias] = useState([]);
 
   useEffect(() => {
-    if (window.location.href.includes('localhost')) {
-      const URL = window.location.hostname.includes('localhost')
+    const URL_TOP = window.location.hostname.includes('localhost')
       ? 'http://localhost:8080/categorias'
-      : 'https://millaflix.herokuapp.com/categorias';
-      fetch(URL)
-        .then(async (respostaDoServer) => {
-          if (respostaDoServer.ok) {
-            const resposta = await respostaDoServer.json();
-            setCategorias(resposta);
-            return;
-          }
-          throw new Error('Não foi possível pegar os dados');
-        });
-    }
+      : 'https://devsoutinhoflix.herokuapp.com/categorias';
+    // E a ju ama variáveis
+    fetch(URL_TOP)
+      .then(async (respostaDoServidor) => {
+        const resposta = await respostaDoServidor.json();
+        setCategorias([
+          ...resposta,
+        ]);
+      });
+
+    // setTimeout(() => {
+    //   setCategorias([
+    //     ...categorias,
+    //     {
+    //       id: 1,
+    //       nome: 'Front End',
+    //       descricao: 'Uma categoria bacanudassa',
+    //       cor: '#cbd1ff',
+    //     },
+    //     {
+    //       id: 2,
+    //       nome: 'Back End',
+    //       descricao: 'Outra categoria bacanudassa',
+    //       cor: '#cbd1ff',
+    //     },
+    //   ]);
+    // }, 4 * 1000);
   }, []);
 
-    return (
-      <PageDefault>
-       <h1>Cadastro de Categoria:  </h1>
-       <form onSubmit={function handleSubmit(infosDoEvento){
-         infosDoEvento.preventDefault();
-         setCategorias([
-           ...categorias,
-           values
-         ]);
-         setValues(valoresIniciais)
-         
-       }}>
-         
-         
-         <FormField 
-         label="Nome"
-         type="text"
-         name="nome"
+  return (
+    <PageDefault>
+      <h1>
+        Cadastro de Categoria:
+        {values.nome}
+      </h1>
+
+      <form onSubmit={function handleSubmit(infosDoEvento) {
+        infosDoEvento.preventDefault();
+        setCategorias([
+          ...categorias,
+          values,
+        ]);
+
+        clearForm();
+      }}
+      >
+
+        <FormField
+          label="Nome da Categoria"
+          name="nome"
           value={values.nome}
-          onChange={handleChange}/>
-         
-         
-          <FormField 
-         label="Descrição"
-         type="textarea"
-         name="descricao"
+          onChange={handleChange}
+        />
+
+        <FormField
+          label="Descrição"
+          type="textarea"
+          name="descricao"
           value={values.descricao}
-          onChange={handleChange}/>
-         
-         <FormField 
-         label="Cor"
-         type="color"
-         name="cor"
+          onChange={handleChange}
+        />
+
+        <FormField
+          label="Cor"
+          type="color"
+          name="cor"
           value={values.cor}
-          onChange={handleChange}/>
-        
-         <p></p>
-         <Button>
-           Cadastrar
-         </Button>
-        <p></p>
-         <Link to="/"> Voltar</Link>
-       </form>
+          onChange={handleChange}
+        />
 
-       {categorias.length === 0 && (
-         <div>
-           {}
-           Loading...
-         </div>
-       )}
+        <Button>
+          Cadastrar
+        </Button>
+      </form>
 
-       <ul>
-         {categorias.map((categoria) => {
-           return (
-             <li key={`${categoria.nome}`}>
-               {categoria.nome}
-             </li>
+      {categorias.length === 0 && (
+        <div>
+          {/* Cargando... */}
+          Loading...
+        </div>
+      )}
 
-           )
-         })}
-       </ul>
+      <ul>
+        {categorias.map((categoria) => (
+          <li key={`${categoria.titulo}`}>
+            {categoria.titulo}
+          </li>
+        ))}
+      </ul>
 
-        
-      </PageDefault>
-    )
-  }
+      <Link to="/">
+        Ir para home
+      </Link>
+    </PageDefault>
+  );
+}
 
-  export default CadastroCategoria;
+export default CadastroCategoria;
